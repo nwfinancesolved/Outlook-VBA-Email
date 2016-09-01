@@ -1,0 +1,16 @@
+Sub SendAllDrafts()
+' Send the messages in the Drafts folder (ignore any subfolders)
+If MsgBox("Are you sure you want to send ALL the items in your default Drafts folder?", _
+    vbQuestion + vbYesNo) <> vbYes Then Exit Sub
+Dim fldDraft As MAPIFolder, msg As Outlook.MailItem, intCount As Integer
+Set fldDraft = Outlook.GetNamespace("MAPI").GetDefaultFolder(olFolderDrafts)
+intCount = 0
+Do While fldDraft.Items.Count > 0
+    Set msg = fldDraft.Items(1)
+    msg.Send
+    intCount = intCount + 1
+Loop
+If Not (msg Is Nothing) Then Set msg = Nothing
+Set fldDraft = Nothing
+MsgBox intCount & " messages sent", vbInformation + vbOKOnly
+End Sub
