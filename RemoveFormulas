@@ -1,0 +1,8 @@
+Sub PasteValues() ' ctrl+b
+    'Loops thru selection, copies and pastes as values, then exits out of cut copy mode
+    On Error Resume Next
+    Selection.Copy
+    Selection.PasteSpecial xlPasteValues
+    Application.CutCopyMode = False
+    
+End Sub
