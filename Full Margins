@@ -1,0 +1,87 @@
+Sub Margins()
+'
+' Margins Macro
+' Macro recorded 12/21/2005 by FAHLMANC
+'
+' Keyboard Shortcut: Ctrl+m
+'
+    With Cells
+        .Font.Name = "Tahoma"
+        .Font.Size = 9
+        .EntireColumn.AutoFit
+        .Borders(xlDiagonalDown).LineStyle = xlNone
+        .Borders(xlDiagonalUp).LineStyle = xlNone
+        'Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+        'Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    ActiveSheet.PageSetup.PrintArea = ""
+    With ActiveSheet.PageSetup
+        .LeftHeader = ""
+        .CenterHeader = "&F"
+        .RightHeader = ""
+        .LeftFooter = ""
+        .CenterFooter = "Page &P of &N"
+        .RightFooter = ""
+        .LeftMargin = Application.InchesToPoints(0.25)
+        .RightMargin = Application.InchesToPoints(0.25)
+        .TopMargin = Application.InchesToPoints(0.75)
+        .BottomMargin = Application.InchesToPoints(0.5)
+        .HeaderMargin = Application.InchesToPoints(0.5)
+        .FooterMargin = Application.InchesToPoints(0.25)
+        .PrintHeadings = False
+        .PrintGridlines = True
+        .Orientation = xlPortrait
+        .PaperSize = xlPaperLetter
+        .FirstPageNumber = xlAutomatic
+        .Order = xlDownThenOver
+        .BlackAndWhite = False
+        .FitToPagesWide = 1
+        .PrintTitleRows = "$1:$1"
+        .PrintTitleColumns = ""
+    End With
+   ' With Selection.Borders(xlEdgeLeft)
+   '     .LineStyle = xlContinuous
+   '     .ColorIndex = 0
+   '     .TintAndShade = 0
+   '     .Weight = xlThin
+   ' End With
+    
+'End With
+End Sub
+
+Sub MarginsAND()
+'
+' This includes the margin macro and sorting data by company, acct, and invoice date, limit at 1500 lines
+'Ctrl+Shift+M
+
+
+'
+Application.ScreenUpdating = False
+    Range("J1").Value = "SBT"
+    ActiveSheet.Sort.SortFields.Clear
+    ActiveSheet.Sort.SortFields.Add Key:=Range("A2:A1500") _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    ActiveSheet.Sort.SortFields.Add Key:=Range("C2:C1500") _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    ActiveSheet.Sort.SortFields.Add Key:=Range("E2:E1500") _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveSheet.Sort
+        .SetRange Range("A1:J1500")
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .Apply
+    End With
+    With Selection
+    Selection.Subtotal GroupBy:=1, Function:=xlSum, TotalList:=Array(7, 8, 9, 10 _
+        ), Replace:=True, PageBreaks:=True, SummaryBelowData:=True
+    Call Margins
+    End With
+Application.ScreenUpdating = True
+   
+End Sub
+
