@@ -1,0 +1,170 @@
+Sub SaveAsNew()
+
+Dim D As Date
+Dim apDate As String
+Dim apWK As Integer
+Dim wbName As String
+Dim myPath As String
+Dim DateCheck As Date
+
+myPath = ActiveWorkbook.Path
+
+'Defines New week
+apWK = CInt(Format(Now, "ww", FW)) - 1
+'get the Workbook name without
+wbName = Left(ActiveWorkbook.Name, (InStrRev(ActiveWorkbook.Name, ".", -1, vbTextCompare) - 1))
+'ap is short for append
+DateCheck = DateSerial(Year(Now), MOnth(Now), Day(Now)) - Weekday(Now, 1)
+apDate = Format(DateCheck, "-yyyy-mm-dd")
+'Create a folder for new week
+'Error Handling is ignored but does not stop process
+    On Error Resume Next
+        MkDir myPath & " - " & apDate
+        
+        
+        
+        
+    On Error GoTo 0
+
+    With ActiveWorkbook
+        For lCnt = 1 To .Connections.Count
+            .Connections(lCnt).ODBCConnection.BackgroundQuery = False
+        Next lCnt
+    End With
+Workbooks(wbName).Activate
+ActiveWorkbook.RefreshAll
+
+ActiveWorkbook.SaveAs Filename:=myPath & " - " & apDate & "\" & wbName & apDate & ".xlsx", FileFormat:=51
+
+
+End Sub
+
+
+
+Sub Email()
+'Working in Excel 2000-2016
+'This example send the last saved version of the Activeworkbook
+'For Tips see: http://www.rondebruin.nl/win/winmail/Outlook/tips.htm
+    Dim OutApp As Object
+    Dim OutMail As Object
+    Dim ChainNumber As String
+    Dim DateCheck As Date
+    Dim apDate As String
+    Dim Mon As Integer
+    
+Mon = Format(MOnth(Now), "mm")
+apWK = CInt(Format(Now, "ww", FW))
+DateCheck = DateSerial(Year(Now), MOnth(Now), Day(Now)) - Weekday(Now, 1)
+apDate = Format(DateCheck, "-yyyy-mm-dd")
+ChainNumber = " - " & Sheets("Hidden Email").Range("A2").Value
+    Dim strBODY As String
+    strBODY = "Please find the attached statement for you to review. " & vbNewLine & _
+              "If you need invoices for your account(s), please contact franzar@usbakery.com" & vbNewLine & _
+              "" & vbNewLine & _
+              "Regards," & vbNewLine & _
+              "Statement Processing" & vbNewLine & _
+              "www.usbakery.com"
+
+    Set OutApp = CreateObject("Outlook.Application")
+    Set OutMail = OutApp.CreateItem(0)
+
+    On Error Resume Next
+    With OutMail
+        .To = Sheets("Hidden Email").Range("A1").Value
+        .CC = ""
+        .BCC = ""
+        .Subject = "Franz Family Bakeries Statement for W/E" & apDate & ChainNumber
+        .BOdy = strBODY
+        .Attachments.Add ActiveWorkbook.FullName
+        .SentOnBehalfOfName = "FranzAR@usbakery.com"
+        'You can add other files also like this
+        '.Attachments.Add ("C:\test.txt")
+        .Display   'or use .Display
+        .Save
+        .Close 1
+    End With
+    On Error GoTo 0
+ActiveWorkbook.Close
+
+    Set OutMail = Nothing
+    Set OutApp = Nothing
+End Sub
+
+
+Sub EStatementFinal()
+'PURPOSE: To loop through all Excel files in a user specified folder and perform a set task on them
+'SOURCE: www.TheSpreadsheetGuru.com
+
+Dim wb As Workbook
+Dim myPath As String
+Dim myFile As String
+Dim myExtension As String
+Dim FldrPicker As FileDialog
+
+'Optimize Macro Speed
+  Application.ScreenUpdating = False
+  Application.EnableEvents = False
+  Application.DisplayAlerts = False
+  Application.Calculation = xlCalculationManual
+
+'Retrieve Target Folder Path From User
+  Set FldrPicker = Application.FileDialog(msoFileDialogFolderPicker)
+
+    With FldrPicker
+      .Title = "Select A Target Folder"
+      .AllowMultiSelect = False
+        If .Show <> -1 Then GoTo NextCode
+        myPath = .SelectedItems(1) & "\"
+    End With
+
+'In Case of Cancel
+NextCode:
+  myPath = myPath
+  If myPath = "" Then GoTo ResetSettings
+
+'Target File Extension (must include wildcard "*")
+  myExtension = "*.xls"
+
+'Target Path with Ending Extention
+  myFile = Dir(myPath & myExtension)
+
+'Loop through each Excel file in folder
+  Do While myFile <> ""
+    'Set variable equal to opened workbook
+      Set wb = Workbooks.Open(Filename:=myPath & myFile)
+    
+    'Ensure Workbook has opened before moving on to next line of code
+      DoEvents
+
+    'Save and Close Workbook
+      Call SaveAsNew
+      Call Email
+      
+    'Ensure Workbook has closed before moving on to next line of code
+      DoEvents
+
+    'Get next file name
+      myFile = Dir
+  Loop
+
+'Message Box when tasks are completed
+  MsgBox "Folder is updated and drafts have been moved to Outlook."
+
+ResetSettings:
+  'Reset Macro Optimization Settings
+    Application.EnableEvents = True
+    Application.DisplayAlerts = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.ScreenUpdating = True
+
+End Sub
+
+Sub MonthCheck()
+
+Dim Mon As Integer
+apWK = CInt(Format(Now, "ww", FW))
+DateCheck = DateSerial(Year(Now), MOnth(Now), Day(Now)) - Weekday(Now, 1)
+apDate = " - " & Year(DateCheck) & "-" & MOnth(DateCheck) & "-" & Day(DateCheck)
+
+MsgBox Format(DateCheck, "-yyyy-mm-dd")
+End Sub
