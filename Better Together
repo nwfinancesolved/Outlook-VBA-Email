@@ -1,0 +1,35 @@
+'Credit to xld on VBAExpress.com
+'http://www.vbaexpress.com/forum/member.php?2139-xld
+'To use, create file within directory of files you want to stitch, then start macro. 
+
+
+Sub puttogether() 
+     
+    Dim fs, numfiles, Direct, dirlen, TheOriginalFile, filename, tabname 
+    numfiles = 0 
+     
+    TheOriginalFile = ActiveWorkbook.Name 
+     
+    Direct = ActiveWorkbook.Path 'CurDir()
+    fs = Dir(Direct & Application.PathSeparator & "*.xl*") 
+    If fs <> "" Then 
+         
+        Do While fs <> "" 
+            If fs = TheOriginalFile Then 
+                 'Skips Consolidating File
+            Else 
+                Workbooks.Open filename:=Direct & Application.PathSeparator & fs 
+                filename = ActiveWorkbook.Name 
+                tabname = Mid(ActiveWorkbook.Name, 1, Len(ActiveWorkbook.Name) - 4) 
+                Windows(filename).Activate 
+                Sheets(1).Copy After:=Workbooks(TheOriginalFile).Sheets(1) 
+                Windows(filename).Close 
+                Windows(TheOriginalFile).Activate 
+            End If 
+             
+            fs = Dir 
+        Loop 
+    Else 
+        MsgBox "There were no files found." 
+    End If 
+End Sub 
