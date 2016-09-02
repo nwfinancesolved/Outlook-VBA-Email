@@ -1,0 +1,15 @@
+'On Error Resume Next
+
+Sub procedurename()
+
+On Error GoTo errHandler
+' Code
+' Code
+' Code
+
+
+
+errHandler:
+  MsgBox "Error " & Err.Number & ": " & Err.Description & " in " & _
+  VBE.ActiveCodePane.CodeModule, vbOKOnly, "Error"
+End Sub
