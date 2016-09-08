@@ -73,10 +73,10 @@ ChainNumber = " - " & Sheets("Hidden Email").Range("A2").Value
         .To = Sheets("Hidden Email").Range("A1").Value
         .CC = ""
         .BCC = ""
-        .Subject = "Franz Family Bakeries Statement for W/E" & apDate & ChainNumber
+        '.Subject = "Subject" & apDate & ChainNumber
         .BOdy = strBODY
         .Attachments.Add ActiveWorkbook.FullName
-        .SentOnBehalfOfName = "FranzAR@usbakery.com"
+        '.SentOnBehalfOfName = 
         'You can add other files also like this
         '.Attachments.Add ("C:\test.txt")
         .Display   'or use .Display
@@ -157,14 +157,4 @@ ResetSettings:
     Application.Calculation = xlCalculationAutomatic
     Application.ScreenUpdating = True
 
-End Sub
-
-Sub MonthCheck()
-
-Dim Mon As Integer
-apWK = CInt(Format(Now, "ww", FW))
-DateCheck = DateSerial(Year(Now), MOnth(Now), Day(Now)) - Weekday(Now, 1)
-apDate = " - " & Year(DateCheck) & "-" & MOnth(DateCheck) & "-" & Day(DateCheck)
-
-MsgBox Format(DateCheck, "-yyyy-mm-dd")
 End Sub
